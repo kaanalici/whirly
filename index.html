@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#05020c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Whirlybird">
+<title>Whirlybird — Gökyüzüne Tırman</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='56' r='34' fill='%23ffd54a'/><rect x='28' y='14' width='44' height='6' rx='3' fill='%23383f4c'/></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="frame" id="frame">
+  <canvas id="game" width="420" height="720"></canvas>
+
+  <!-- ============ HUD ============ -->
+  <div class="hud hidden" id="hud">
+    <div class="hud-left">
+      <div class="height"><b id="hud-meters">0</b><span>m</span></div>
+      <div class="stars">★ <b id="hud-stars">0</b></div>
+      <div class="powers">
+        <span class="pw pw-shield hidden" id="pw-shield">🛡</span>
+        <span class="pw pw-magnet hidden" id="pw-magnet">🧲<b id="pw-magnet-t">8</b></span>
+        <span class="pw pw-jet hidden" id="pw-jet">🚀<b id="pw-jet-t">2</b></span>
+      </div>
+    </div>
+    <div class="hud-right">
+      <div class="best">REKOR <b id="hud-best">0</b></div>
+      <div class="hud-btns">
+        <button id="btn-sound" title="Ses">🔊</button>
+        <button id="btn-pause" title="Duraklat">⏸</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MENÜ ============ -->
+  <div class="overlay" id="menu">
+    <div class="ov-inner">
+      <div class="logo">WHIRLY<span>BIRD</span></div>
+      <p class="tag">Neon gökyüzünde yüksel. Düşen kaybeder.</p>
+
+      <div class="mode-pick" id="mode-pick" role="group" aria-label="Kontrol stili">
+        <button class="mode-btn" data-mode="pc" type="button">🖥<span>BİLGİSAYAR</span></button>
+        <button class="mode-btn" data-mode="touch" type="button">📱<span>TELEFON</span></button>
+      </div>
+
+      <button class="btn big" id="btn-start">OYNA</button>
+
+      <p class="ctrl" id="ctrl-pc">
+        <span class="key">←</span><span class="key">→</span> veya <span class="key">A</span><span class="key">D</span> ile hareket<br>
+        Zıplama otomatik · Fare ile sürükleyebilirsin
+      </p>
+      <p class="ctrl hidden" id="ctrl-touch">
+        Ekranın <b>sol</b> yarısına bas → sola<br>
+        <b>sağ</b> yarısına bas → sağa · Zıplama otomatik
+      </p>
+
+      <div class="best-line">REKOR <b id="menu-best">0</b></div>
+    </div>
+  </div>
+
+  <!-- ============ OYUN BİTTİ ============ -->
+  <div class="overlay hidden" id="over">
+    <div class="ov-inner">
+      <div class="over-title" id="over-title">DÜŞTÜN!</div>
+      <div class="score-big" id="over-score">0</div>
+      <div class="score-sub"><span id="over-meters">0 m</span><span class="dot">·</span><span id="over-stars">★ 0</span></div>
+      <div class="new-rec hidden" id="new-rec">YENİ REKOR!</div>
+      <div class="best-line">REKOR <b id="over-best">0</b></div>
+      <button class="btn big" id="btn-again">TEKRAR OYNA</button>
+      <button class="btn ghost" id="btn-menu">MENÜ</button>
+    </div>
+  </div>
+
+  <!-- ============ DURAKLAT ============ -->
+  <div class="overlay hidden" id="pause">
+    <div class="ov-inner">
+      <div class="over-title">DURAKLATILDI</div>
+      <button class="btn big" id="btn-resume">DEVAM ET</button>
+      <button class="btn ghost" id="btn-pause-menu">MENÜ</button>
+    </div>
+  </div>
+
+  <div class="vignette"></div>
+  <div class="hint-touch" id="hint-touch">Sol yarı ← &nbsp;·&nbsp; → sağ yarı</div>
+  <div class="credit">kaan alıcı tarafından yapıldı</div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>

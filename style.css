@@ -1,0 +1,577 @@
+/* =========================================================
+   WHIRLYBIRD — neon arayüz
+   ========================================================= */
+
+:root {
+  --cyan: #00e5ff;
+  --pink: #ff2d95;
+  --violet: #a96bff;
+  --lime: #39ff88;
+  --ink: #e8fbff;
+  --dim: rgba(220, 245, 255, 0.55);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.hidden { display: none !important; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: #030208;
+  font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+body {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  background:
+    radial-gradient(900px 700px at 15% 0%, rgba(0, 229, 255, 0.13), transparent 60%),
+    radial-gradient(900px 700px at 95% 100%, rgba(255, 45, 149, 0.14), transparent 60%),
+    radial-gradient(700px 500px at 60% 45%, rgba(120, 60, 255, 0.10), transparent 70%),
+    #030208;
+}
+
+/* telefonda tam ekran: adres çubuğu/çentik payı */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right)
+             env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+}
+
+/* ---------------- sahne ---------------- */
+
+.frame {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 420px;
+  height: 720px;
+  transform: translate(-50%, -50%) scale(var(--s, 1));
+  transform-origin: center center;
+  border-radius: 20px;
+  overflow: hidden;
+  contain: layout paint;
+  background: #06040f;
+  box-shadow:
+    0 0 0 1px rgba(0, 229, 255, 0.28),
+    0 0 42px rgba(0, 229, 255, 0.22),
+    0 0 90px rgba(255, 45, 149, 0.14),
+    0 40px 100px rgba(0, 0, 0, 0.85);
+}
+
+.frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  border-radius: 20px;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.045) 0px,
+    rgba(255, 255, 255, 0.045) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: overlay;
+  opacity: 0.55;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 20px;
+  box-shadow:
+    inset 0 0 100px rgba(0, 0, 0, 0.55),
+    inset 0 -70px 90px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------------- HUD ---------------- */
+
+.hud {
+  position: absolute;
+  inset: 0 0 auto 0;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+  color: var(--ink);
+  font-weight: 800;
+  z-index: 3;
+}
+
+.hud-left { display: flex; flex-direction: column; gap: 3px; }
+
+.height {
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 42px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #d9feff;
+  text-shadow:
+    0 0 8px rgba(0, 229, 255, 0.9),
+    0 0 26px rgba(0, 229, 255, 0.55);
+}
+.height span {
+  font-size: 15px;
+  margin-left: 4px;
+  opacity: 0.75;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+}
+
+.stars {
+  font-size: 15px;
+  letter-spacing: 0.08em;
+  color: #ffd6ec;
+  text-shadow: 0 0 10px rgba(255, 45, 149, 0.85);
+}
+
+/* aktif güçlendirmeler */
+.powers {
+  display: flex;
+  gap: 5px;
+  margin-top: 6px;
+  min-height: 20px;
+  pointer-events: none;
+}
+
+.pw {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 7px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  animation: pwIn 0.18s ease;
+}
+.pw b {
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
+}
+@keyframes pwIn { from { transform: scale(0.7); opacity: 0; } }
+
+.pw-shield {
+  color: #bffcff;
+  border: 1px solid rgba(0, 229, 255, 0.6);
+  background: rgba(0, 229, 255, 0.1);
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
+}
+.pw-magnet {
+  color: #ffd6ec;
+  border: 1px solid rgba(255, 45, 149, 0.55);
+  background: rgba(255, 45, 149, 0.1);
+  box-shadow: 0 0 14px rgba(255, 45, 149, 0.35);
+}
+.pw-jet {
+  color: #ffe6c4;
+  border: 1px solid rgba(255, 176, 32, 0.6);
+  background: rgba(255, 176, 32, 0.1);
+  box-shadow: 0 0 14px rgba(255, 176, 32, 0.35);
+}
+
+.hud-right { display: flex; flex-direction: column; align-items: flex-end; gap: 9px; }
+.best {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: rgba(220, 245, 255, 0.6);
+  text-shadow: none;
+}
+.best b { color: var(--cyan); text-shadow: 0 0 10px rgba(0, 229, 255, 0.7); }
+.hud-btns { display: flex; gap: 6px; pointer-events: auto; }
+
+.hud-btns button {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid rgba(0, 229, 255, 0.32);
+  background: rgba(4, 10, 22, 0.65);
+  backdrop-filter: blur(6px);
+  color: var(--ink);
+  font-size: 14px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: 0.15s;
+  box-shadow: 0 0 12px rgba(0, 229, 255, 0.12);
+}
+.hud-btns button:hover {
+  border-color: rgba(0, 229, 255, 0.8);
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.4);
+}
+
+/* ---------------- Katmanlar ---------------- */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 26px;
+  text-align: center;
+  color: var(--ink);
+  background:
+    radial-gradient(130% 80% at 50% 35%, rgba(6, 8, 22, 0.5), rgba(2, 2, 8, 0.9) 70%);
+  backdrop-filter: blur(3px);
+  animation: fade 0.25s ease;
+  z-index: 5;
+}
+.overlay.hidden { display: none; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+.ov-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  animation: rise 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+}
+@keyframes rise { from { transform: translateY(16px); opacity: 0; } }
+
+.logo {
+  font-family: "Arial Black", "Trebuchet MS", sans-serif;
+  font-size: 44px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: #f2feff;
+  transform: skewX(-6deg);
+  text-shadow:
+    0 0 6px rgba(255, 255, 255, 0.8),
+    0 0 18px rgba(0, 229, 255, 0.9),
+    0 0 42px rgba(0, 229, 255, 0.6),
+    0 0 80px rgba(0, 229, 255, 0.35);
+}
+.logo span {
+  display: block;
+  color: #ffe9f4;
+  text-shadow:
+    0 0 6px rgba(255, 255, 255, 0.7),
+    0 0 18px rgba(255, 45, 149, 0.95),
+    0 0 44px rgba(255, 45, 149, 0.6),
+    0 0 80px rgba(255, 45, 149, 0.3);
+}
+
+.tag {
+  margin: 20px 0 28px;
+  font-size: 12.5px;
+  color: rgba(215, 240, 255, 0.62);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  max-width: 290px;
+  line-height: 1.7;
+}
+
+.btn {
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #fff;
+  border: 1px solid rgba(255, 120, 190, 0.75);
+  border-radius: 12px;
+  padding: 15px 34px;
+  min-width: 216px;
+  cursor: pointer;
+  background: linear-gradient(180deg, #ff4da6 0%, #c10a68 55%, #82004a 100%);
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.55);
+  box-shadow:
+    0 0 20px rgba(255, 45, 149, 0.55),
+    0 0 46px rgba(255, 45, 149, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: transform 0.12s ease, filter 0.15s, box-shadow 0.15s;
+}
+.btn:hover {
+  filter: brightness(1.12);
+  box-shadow:
+    0 0 26px rgba(255, 45, 149, 0.8),
+    0 0 70px rgba(255, 45, 149, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.btn:active { transform: translateY(2px) scale(0.99); }
+
+.btn.ghost {
+  margin-top: 12px;
+  min-width: 216px;
+  padding: 11px 26px;
+  font-size: 11.5px;
+  letter-spacing: 0.22em;
+  color: rgba(200, 245, 255, 0.8);
+  background: rgba(0, 229, 255, 0.04);
+  border: 1px solid rgba(0, 229, 255, 0.35);
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+  box-shadow: 0 0 14px rgba(0, 229, 255, 0.12);
+}
+.btn.ghost:hover {
+  background: rgba(0, 229, 255, 0.1);
+  box-shadow: 0 0 22px rgba(0, 229, 255, 0.3);
+}
+
+/* ---------------- kontrol stili seçimi ---------------- */
+
+.mode-pick {
+  display: flex;
+  gap: 7px;
+  width: 100%;
+  max-width: 268px;
+  padding: 5px;
+  margin: 22px 0 18px;
+  border-radius: 14px;
+  background: rgba(4, 10, 22, 0.6);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  box-shadow: inset 0 0 22px rgba(0, 229, 255, 0.07);
+}
+
+.mode-btn {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 6px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  color: rgba(198, 235, 255, 0.55);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.16s, background 0.16s, box-shadow 0.16s, border-color 0.16s;
+}
+
+.mode-btn:hover { color: #d9feff; background: rgba(0, 229, 255, 0.07); }
+
+.mode-btn.on {
+  color: #ffffff;
+  background: linear-gradient(180deg, rgba(0, 229, 255, 0.24), rgba(0, 229, 255, 0.05));
+  border-color: rgba(0, 229, 255, 0.62);
+  box-shadow:
+    0 0 18px rgba(0, 229, 255, 0.3),
+    inset 0 0 14px rgba(0, 229, 255, 0.16);
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.75);
+}
+
+.ctrl {
+  margin-top: 26px;
+  font-size: 11px;
+  line-height: 2.1;
+  color: rgba(210, 240, 255, 0.5);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.ctrl b {
+  color: #d9feff;
+  font-weight: 800;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.7);
+}
+.key {
+  display: inline-grid;
+  place-items: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  margin: 0 2px;
+  border-radius: 5px;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  background: rgba(0, 229, 255, 0.07);
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #d9feff;
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.18) inset;
+}
+
+.best-line {
+  margin-top: 24px;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: rgba(210, 240, 255, 0.42);
+}
+.best-line b {
+  color: var(--cyan);
+  font-size: 16px;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 14px rgba(0, 229, 255, 0.8);
+}
+
+/* ---------------- Oyun sonu ---------------- */
+
+.over-title {
+  font-family: "Arial Black", "Trebuchet MS", sans-serif;
+  font-size: 32px;
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-shadow:
+    0 0 10px rgba(255, 255, 255, 0.6),
+    0 0 32px rgba(255, 45, 149, 0.8);
+}
+
+.score-big {
+  font-family: "Consolas", "Courier New", monospace;
+  font-size: 68px;
+  line-height: 1;
+  margin: 18px 0 6px;
+  color: #d9feff;
+  text-shadow:
+    0 0 10px rgba(0, 229, 255, 0.95),
+    0 0 34px rgba(0, 229, 255, 0.6),
+    0 0 80px rgba(0, 229, 255, 0.3);
+}
+
+.score-sub {
+  font-size: 12px;
+  color: rgba(220, 245, 255, 0.65);
+  letter-spacing: 0.12em;
+  margin-bottom: 2px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  text-transform: uppercase;
+}
+.score-sub .dot { opacity: 0.3; }
+
+.new-rec {
+  margin-top: 14px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.26em;
+  color: #fff;
+  background: linear-gradient(90deg, rgba(255, 45, 149, 0.9), rgba(169, 107, 255, 0.9));
+  padding: 7px 16px;
+  border-radius: 999px;
+  box-shadow: 0 0 22px rgba(255, 45, 149, 0.55);
+  animation: pop 0.9s ease infinite alternate;
+}
+.new-rec.hidden { display: none; }
+@keyframes pop { to { transform: scale(1.06); } }
+
+#over .btn.big, #pause .btn.big { margin-top: 26px; }
+
+/* ---------------- mobil ipucu ---------------- */
+
+.hint-touch {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: rgba(3, 8, 18, 0.75);
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  color: #d9feff;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.25);
+  z-index: 3;
+}
+.hint-touch.show { opacity: 1; }
+
+/* ---------------- imza ---------------- */
+
+.credit {
+  position: absolute;
+  right: 13px;
+  bottom: 9px;
+  z-index: 6;
+  pointer-events: none;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: rgba(190, 235, 255, 0.38);
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.28);
+  white-space: nowrap;
+}
+
+@media (max-height: 640px) {
+  .logo { font-size: 36px; }
+  .score-big { font-size: 54px; }
+  .tag { margin: 12px 0 14px; }
+  .mode-pick { margin: 14px 0 12px; }
+  .ctrl { margin-top: 16px; line-height: 1.9; }
+  .best-line { margin-top: 16px; }
+}
+
+/* çok dar genişlik (küçük telefonlar) */
+@media (max-width: 360px) {
+  .mode-btn { font-size: 9px; letter-spacing: 0.1em; gap: 4px; }
+  .ctrl { font-size: 10px; }
+}
+
+/* tam ekranda çerçeve köşeleri taşmasın */
+:fullscreen .frame,
+:-webkit-full-screen .frame { border-radius: 0; }
+
+/* =========================================================
+   MOBİL PERFORMANS
+   Dokunmatik cihazlarda tam ekran karışım (mix-blend-mode) ve
+   backdrop-filter katmanları GPU'yu doldurup kare hızını
+   düşürüyor. Burada bu katmanları sadeleştiriyoruz.
+   ========================================================= */
+
+@media (pointer: coarse) {
+  /* tarama çizgisi kaplaması: tam ekran blend -> kapat */
+  .frame::after { display: none; }
+
+  /* menü/oyun sonu katmanındaki blur -> kapat */
+  .overlay {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background:
+      radial-gradient(130% 80% at 50% 35%, rgba(6, 8, 22, 0.66), rgba(2, 2, 8, 0.94) 70%);
+  }
+
+  .hud-btns button {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(4, 10, 22, 0.85);
+  }
+
+  /* çerçevenin çok katmanlı dış parlaması -> tek katman */
+  .frame {
+    box-shadow:
+      0 0 0 1px rgba(0, 229, 255, 0.28),
+      0 0 26px rgba(0, 229, 255, 0.16);
+  }
+
+  body { background: #030208; }
+
+  .new-rec, .pw { animation: none; }
+
+  /* HUD metin gölgeleri: her metrede yeniden çizilen 42px yazı */
+  .height {
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+  }
+  .height span, .stars, .best b { text-shadow: none; }
+}
